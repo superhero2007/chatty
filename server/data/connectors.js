@@ -86,17 +86,6 @@ db.sync({ force: true }).then(() => _.times(GROUPS, () => GroupModel.create({
     );
     return user;
   }));
-}).then((userPromises) => {
-  // make users friends with all users in the group
-  Promise.all(userPromises).then((users) => {
-    _.each(users, (current, i) => {
-      _.each(users, (user, j) => {
-        if (i !== j) {
-          current.addFriend(user);
-        }
-      });
-    });
-  });
 })));
 
 const Group = db.models.group;
