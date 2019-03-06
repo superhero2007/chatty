@@ -67,7 +67,7 @@ function capitalizeFirstLetter(string) {
 
 class Signin extends Component {
   static navigationOptions = {
-    title: 'Chatty',
+    title: 'TerritoriBio',
     headerLeft: null,
   };
 
@@ -183,7 +183,7 @@ class Signin extends Component {
         <View style={styles.switchContainer}>
           <Text>
             { view === 'signup' ?
-              'Already have an account?' : 'New to Chatty?' }
+              'Already have an account?' : 'New to TerritoriBio?' }
           </Text>
           <TouchableOpacity
             onPress={this.switchView}

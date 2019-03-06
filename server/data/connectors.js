@@ -44,8 +44,8 @@ MessageModel.belongsTo(GroupModel);
 GroupModel.belongsToMany(UserModel, { through: 'GroupUser' });
 
 // create fake starter data
-const GROUPS = 4;
-const USERS_PER_GROUP = 5;
+const GROUPS = 1;
+const USERS_PER_GROUP = 10;
 const MESSAGES_PER_USER = 5;
 faker.seed(123); // get consistent data every time we reload app
 
@@ -53,11 +53,30 @@ faker.seed(123); // get consistent data every time we reload app
 // just trust that it fakes a bunch of groups, users, and messages
 db.sync({ force: true }).then(() => _.times(GROUPS, () => GroupModel.create({
   name: faker.lorem.words(3),
-}).then(group => _.times(USERS_PER_GROUP, () => {
-  const password = faker.internet.password();
-  return bcrypt.hash(password, 10).then(hash => group.createUser({
-    email: faker.internet.email(),
-    username: faker.internet.userName(),
+}).then(group => {
+  _.times(USERS_PER_GROUP, () => {
+    const password = faker.internet.password();
+    return bcrypt.hash(password, 10).then(hash => group.createUser({
+      email: faker.internet.email(),
+      username: faker.internet.userName(),
+      password: hash,
+      version: 1,
+    }).then((user) => {
+      console.log(
+        '{email, username, password}',
+        `{${user.email}, ${user.username}, ${password}}`
+      );
+      _.times(MESSAGES_PER_USER, () => MessageModel.create({
+        userId: user.id,
+        groupId: group.id,
+        text: faker.lorem.sentences(3),
+      }));
+      return user;
+    }));
+  });
+  bcrypt.hash('test123', 10).then(hash => group.createUser({
+    email: 'marco@dreamup.it',
+    username: 'marco',
     password: hash,
     version: 1,
   }).then((user) => {
@@ -65,14 +84,9 @@ db.sync({ force: true }).then(() => _.times(GROUPS, () => GroupModel.create({
       '{email, username, password}',
       `{${user.email}, ${user.username}, ${password}}`
     );
-    _.times(MESSAGES_PER_USER, () => MessageModel.create({
-      userId: user.id,
-      groupId: group.id,
-      text: faker.lorem.sentences(3),
-    }));
     return user;
   }));
-})).then((userPromises) => {
+}).then((userPromises) => {
   // make users friends with all users in the group
   Promise.all(userPromises).then((users) => {
     _.each(users, (current, i) => {
