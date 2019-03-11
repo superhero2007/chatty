@@ -18,7 +18,6 @@ import { connect } from 'react-redux';
 
 import { USER_QUERY } from '../graphql/user.query';
 import CREATE_GROUP_MUTATION from '../graphql/create-group.mutation';
-import SelectedUserList from '../components/selected-user-list.component';
 
 const goToNewGroup = group => NavigationActions.reset({
   index: 1,
@@ -110,8 +109,6 @@ class FinalizeGroup extends Component {
     };
 
     this.create = this.create.bind(this);
-    this.pop = this.pop.bind(this);
-    this.remove = this.remove.bind(this);
   }
 
   componentDidMount() {
@@ -122,20 +119,6 @@ class FinalizeGroup extends Component {
     if ((nextState.selected.length && nextState.name) !==
       (this.state.selected.length && this.state.name)) {
       this.refreshNavigation(nextState.selected.length && nextState.name);
-    }
-  }
-
-  pop() {
-    this.props.navigation.goBack();
-  }
-
-  remove(user) {
-    const index = this.state.selected.indexOf(user);
-    if (~index) {
-      const selected = update(this.state.selected, { $splice: [[index, 1]] });
-      this.setState({
-        selected,
-      });
     }
   }
 
@@ -167,8 +150,6 @@ class FinalizeGroup extends Component {
   }
 
   render() {
-    const { friendCount } = this.props.navigation.state.params;
-
     return (
       <View style={styles.container}>
         <View style={styles.detailsContainer}>
@@ -192,16 +173,6 @@ class FinalizeGroup extends Component {
               {'Please provide a group subject and optional group icon'}
             </Text>
           </View>
-        </View>
-        <Text style={styles.participants}>
-          {`participants: ${this.state.selected.length} of ${friendCount}`.toUpperCase()}
-        </Text>
-        <View style={styles.selected}>
-          {this.state.selected.length ?
-            <SelectedUserList
-              data={this.state.selected}
-              remove={this.remove}
-            /> : undefined}
         </View>
       </View>
     );

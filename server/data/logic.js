@@ -1,5 +1,5 @@
 import { ApolloError, AuthenticationError, ForbiddenError } from 'apollo-server';
-import { Group, Message, User } from './connectors';
+import { Group, Message, User, UserType, Category, Tag } from './connectors';
 
 // reusable function to check for a user with context
 function getAuthenticatedUser(ctx) {
@@ -39,6 +39,14 @@ export const messageLogic = {
 export const groupLogic = {
   users(group) {
     return group.getUsers({ attributes: ['id', 'username'] });
+  },
+  tags(group) {
+    return group.getTags();
+  },
+  userType(group) {
+    return UserType.findOne({
+      where: { id: group.userTypeId },
+    }).then(userType => userType);
   },
   messages(group, { messageConnection = {} }) {
     const { first, last, before, after } = messageConnection;
@@ -222,6 +230,16 @@ export const userLogic = {
       });
     });
   },
+  userType(user, args, ctx) {
+    return getAuthenticatedUser(ctx).then((currentUser) => {
+      if (currentUser.id !== user.id) {
+        throw new ForbiddenError('Unauthorized');
+      }
+      return UserType.findOne({
+        where: { id: user.userTypeId },
+      }).then(userType => userType);
+    });
+  },
   query(_, args, ctx) {
     return getAuthenticatedUser(ctx).then((user) => {
       if (user.id === args.id || user.email === args.email) {
@@ -230,6 +248,31 @@ export const userLogic = {
 
       throw new ForbiddenError('Unauthorized');
     });
+  },
+};
+
+export const tagLogic = {
+  groups(tag) {
+    return tag.getGroups();
+  },
+  category(tag) {
+    return Category.findOne({
+      where: { id: tag.categoryId },
+    }).then(category => category);
+  },
+  query(_, args, ctx) {
+    return Tag.findAll().then(tags => tags);
+  },
+};
+
+export const categoryLogic = {
+  tags(category) {
+    return Tag.findAll({
+      where: { categoryId: category.id },
+    }).then(tags => tags);
+  },
+  query(_, args, ctx) {
+    return Category.findAll().then(categories => categories);
   },
 };
 

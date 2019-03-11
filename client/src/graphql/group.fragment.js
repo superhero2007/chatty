@@ -6,9 +6,18 @@ const GROUP_FRAGMENT = gql`
   fragment GroupFragment on Group {
     id
     name
+    label
     users {
       id
       username
+    }
+    tags {
+      id
+      tag
+      category {
+        id
+        category
+      }
     }
     messages(messageConnection: $messageConnection) {
       edges {
@@ -21,6 +30,10 @@ const GROUP_FRAGMENT = gql`
         hasNextPage
         hasPreviousPage
       }
+    }
+    userType {
+      id
+      type
     }
   }
   ${MESSAGE_FRAGMENT}

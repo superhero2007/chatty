@@ -8,15 +8,15 @@ import {
   StyleSheet,
   Text,
   View,
+  ListView,
 } from 'react-native';
 import { graphql, compose } from 'react-apollo';
-import AlphabetListView from 'react-native-alpha-listview';
 import update from 'immutability-helper';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { connect } from 'react-redux';
 
-import SelectedUserList from '../components/selected-user-list.component';
 import USER_QUERY from '../graphql/user.query';
+import CATEGORY_QUERY from '../graphql/category.query';
 
 // eslint-disable-next-line
 const sortObject = o => Object.keys(o).sort().reduce((r, k) => (r[k] = o[k], r), {});
@@ -105,52 +105,27 @@ SectionItem.propTypes = {
 class Cell extends Component {
   constructor(props) {
     super(props);
-    this.toggle = this.toggle.bind(this);
-    this.state = {
-      isSelected: props.isSelected(props.item),
-    };
   }
 
   componentWillReceiveProps(nextProps) {
-    this.setState({
-      isSelected: nextProps.isSelected(nextProps.item),
-    });
-  }
-
-  toggle() {
-    this.props.toggle(this.props.item);
   }
 
   render() {
     return (
       <View style={styles.cellContainer}>
-        <Image
-          style={styles.cellImage}
-          source={{ uri: 'https://reactjs.org/logo-og.png' }}
-        />
-        <Text style={styles.cellLabel}>{this.props.item.username}</Text>
-        <View style={styles.checkButtonContainer}>
-          <Icon.Button
-            backgroundColor={this.state.isSelected ? 'blue' : 'white'}
-            borderRadius={12}
-            color={'white'}
-            iconStyle={styles.checkButtonIcon}
-            name={'check'}
-            onPress={this.toggle}
-            size={16}
-            style={styles.checkButton}
-          />
-        </View>
+        <Text>{JSON.stringify(this.props)}</Text>
       </View>
     );
   }
 }
 Cell.propTypes = {
-  isSelected: PropTypes.func,
-  item: PropTypes.shape({
-    username: PropTypes.string.isRequired,
-  }).isRequired,
-  toggle: PropTypes.func.isRequired,
+  id: PropTypes.number,
+  title: PropTypes.string,
+  items: PropTypes.arrayOf(PropTypes.shape({
+    id: PropTypes.number,
+    tag: PropTypes.string,
+  })),
+  selected: PropTypes.number,
 };
 
 class NewGroup extends Component {
@@ -170,20 +145,25 @@ class NewGroup extends Component {
 
   constructor(props) {
     super(props);
-
-    let selected = [];
-    if (this.props.navigation.state.params) {
-      selected = this.props.navigation.state.params.selected;
-    }
+    let category = props.category;
+    category = _.map(category, (categoryElement) => {
+      return {
+        id: categoryElement.id,
+        category: categoryElement.category,
+        tags: categoryElement.tags,
+        selectedTag: categoryElement.tags[0].id,
+      };
+    });
+    const list = category || [];
 
     this.state = {
-      selected: selected || [],
+      selected: props.user.friends,
       friends: props.user ?
         _.groupBy(props.user.friends, friend => friend.username.charAt(0).toUpperCase()) : [],
+      list,
     };
 
     this.finalizeGroup = this.finalizeGroup.bind(this);
-    this.isSelected = this.isSelected.bind(this);
     this.toggle = this.toggle.bind(this);
   }
 
@@ -197,6 +177,20 @@ class NewGroup extends Component {
       state.friends = sortObject(
         _.groupBy(nextProps.user.friends, friend => friend.username.charAt(0).toUpperCase()),
       );
+    }
+
+    if (nextProps.category) {
+      let category = nextProps.category;
+      category = _.map(category, (categoryElement) => {
+        return {
+          id: categoryElement.id,
+          category: categoryElement.category,
+          tags: categoryElement.tags,
+          selectedTag: categoryElement.tags[0].id,
+        };
+      });
+      const list = category || [];
+      this.state.list = list;
     }
 
     if (nextProps.selected) {
@@ -231,29 +225,18 @@ class NewGroup extends Component {
     });
   }
 
-  isSelected(user) {
-    return ~this.state.selected.indexOf(user);
-  }
-
-  toggle(user) {
-    const index = this.state.selected.indexOf(user);
-    if (~index) {
-      const selected = update(this.state.selected, { $splice: [[index, 1]] });
-
-      return this.setState({
-        selected,
-      });
-    }
-
-    const selected = [...this.state.selected, user];
-
-    return this.setState({
-      selected,
-    });
-  }
+  toggle = (categoryId, tagId) => {
+    const { list } = this.state;
+    const category = _.find(list, element => element.id === categoryId);
+    category.selectedTag = tagId;
+    this.state.list = list;
+  };
 
   render() {
     const { user, loading } = this.props;
+    const { list } = this.state;
+    const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1.id !== r2.id});
+    const listValue = ds.cloneWithRows(list);
 
     // render loading placeholder while we fetch messages
     if (loading || !user) {
@@ -266,25 +249,17 @@ class NewGroup extends Component {
 
     return (
       <View style={styles.container}>
-        {this.state.selected.length ? <View style={styles.selected}>
-          <SelectedUserList
-            data={this.state.selected}
-            remove={this.toggle}
-          />
-        </View> : undefined}
-        {_.keys(this.state.friends).length ? <AlphabetListView
-          style={{ flex: 1 }}
-          data={this.state.friends}
-          cell={Cell}
-          cellHeight={30}
-          cellProps={{
-            isSelected: this.isSelected,
-            toggle: this.toggle,
-          }}
-          sectionListItem={SectionItem}
-          sectionHeader={SectionHeader}
-          sectionHeaderHeight={22.5}
-        /> : undefined}
+        <ListView
+          dataSource={listValue}
+          renderRow={rowData => <Cell
+            id={rowData.id}
+            selected={rowData.selectedTag}
+            items={rowData.tags}
+            title={rowData.category}
+            toggle={this.toggle}
+            />
+          }
+        />
       </View>
     );
   }
@@ -306,6 +281,14 @@ NewGroup.propTypes = {
       username: PropTypes.string,
     })),
   }),
+  category: PropTypes.arrayOf(PropTypes.shape({
+    id: PropTypes.number,
+    category: PropTypes.string,
+    tags: PropTypes.arrayOf(PropTypes.shape({
+      id: PropTypes.number,
+      tag: PropTypes.string,
+    })),
+  })),
   selected: PropTypes.arrayOf(PropTypes.object),
 };
 
@@ -316,6 +299,12 @@ const userQuery = graphql(USER_QUERY, {
   }),
 });
 
+const categoryQuery = graphql(CATEGORY_QUERY, {
+  props: ({ data: { category } }) => ({
+    category,
+  }),
+});
+
 const mapStateToProps = ({ auth }) => ({
   auth,
 });
@@ -323,4 +312,5 @@ const mapStateToProps = ({ auth }) => ({
 export default compose(
   connect(mapStateToProps),
   userQuery,
+  categoryQuery,
 )(NewGroup);

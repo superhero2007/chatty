@@ -7,7 +7,7 @@ import jwt from 'jsonwebtoken';
 import { Group, Message, User } from './connectors';
 import { pubsub } from '../subscriptions';
 import { JWT_SECRET } from '../config';
-import { groupLogic, messageLogic, userLogic, subscriptionLogic } from './logic';
+import { groupLogic, messageLogic, userLogic, subscriptionLogic, tagLogic, categoryLogic } from './logic';
 
 const MESSAGE_ADDED_TOPIC = 'messageAdded';
 const GROUP_ADDED_TOPIC = 'groupAdded';
@@ -29,6 +29,12 @@ export const resolvers = {
     },
     user(_, args, ctx) {
       return userLogic.query(_, args, ctx);
+    },
+    tag(_, args, ctx) {
+      return tagLogic.query(_, args, ctx);
+    },
+    category(_, args, ctx) {
+      return categoryLogic.query(_, args, ctx);
     },
   },
   Mutation: {
@@ -147,8 +153,14 @@ export const resolvers = {
     users(group, args, ctx) {
       return groupLogic.users(group, args, ctx);
     },
+    tags(group, args, ctx) {
+      return groupLogic.tags(group, args, ctx);
+    },
     messages(group, args, ctx) {
       return groupLogic.messages(group, args, ctx);
+    },
+    userType(group, args, ctx) {
+      return groupLogic.userType(group, args, ctx);
     },
   },
   Message: {
@@ -174,6 +186,22 @@ export const resolvers = {
     },
     messages(user, args, ctx) {
       return userLogic.messages(user, args, ctx);
+    },
+    userType(user, args, ctx) {
+      return userLogic.userType(user, args, ctx);
+    },
+  },
+  Tag: {
+    groups(tag, args, ctx) {
+      return tagLogic.groups(tag, args, ctx);
+    },
+    category(tag, args, ctx) {
+      return tagLogic.category(tag, args, ctx);
+    },
+  },
+  Category: {
+    tags(category, args, ctx) {
+      return categoryLogic.tags(category, args, ctx);
     },
   },
 };

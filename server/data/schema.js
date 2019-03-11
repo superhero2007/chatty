@@ -57,12 +57,33 @@ export const typeDefs = gql`
     hasNextPage: Boolean!
     hasPreviousPage: Boolean!
   }
+  
+  type Category {
+    id: Int! # unique id for the Category
+    category: String # category of the Category
+    tags: [Tag] # tags the category belongs to
+  }
+  
+  type Tag {
+    id: Int! # unique id for the Tag
+    tag: String # tag of the Tag
+    groups: [Group] # groups the tag belongs to
+    category: Category # category the tag belongs to
+  }
+  
+  type UserType {
+    id: Int! # unique id for the UserType
+    type: String # type of the UserType
+  }
 
   # a group chat entity
   type Group {
     id: Int! # unique id for the group
     name: String # name of the group
+    label: String # label of the group
     users: [User]! # users in the group
+    tags: [Tag] # tags in the group
+    userType: UserType # userType the group belongs to
     messages(messageConnection: ConnectionInput): MessageConnection # messages sent to the group
   }
 
@@ -75,6 +96,7 @@ export const typeDefs = gql`
     groups: [Group] # groups the user belongs to
     friends: [User] # user's friends/contacts
     jwt: String # json web token for access
+    userType: UserType # userType the user belongs to
   }
 
   # a message sent from a user to a group
@@ -97,6 +119,12 @@ export const typeDefs = gql`
 
     # Return a group by its id
     group(id: Int!): Group
+    
+    # Return a tag by its id
+    tag: [Tag]
+    
+    # Return categories by its id
+    category: [Category]
   }
 
   type Mutation {

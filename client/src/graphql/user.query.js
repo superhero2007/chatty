@@ -25,6 +25,10 @@ export const USER_QUERY = gql`
         id
         username
       }
+      userType {
+        id
+        type
+      }
     }
   }
   ${MESSAGE_FRAGMENT}
