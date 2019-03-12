@@ -29,7 +29,7 @@ import AppWithNavigationState, {
 import auth from './reducers/auth.reducer';
 import { logout } from './actions/auth.actions';
 
-const URL = 'nikita.dreamup.it'; // set your comp's url here
+const URL = 'localhost:8080';//'nikita.dreamup.it'; // set your comp's url here
 
 const config = {
   key: 'root',

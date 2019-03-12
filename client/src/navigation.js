@@ -1,6 +1,11 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import { NavigationActions, addNavigationHelpers, StackNavigator, TabNavigator } from 'react-navigation';
+import {
+  NavigationActions,
+  addNavigationHelpers,
+  StackNavigator,
+  TabNavigator
+} from 'react-navigation';
 import {
   createReduxBoundAddListener,
   createReactNavigationReduxMiddleware,
@@ -49,13 +54,13 @@ const AppNavigator = StackNavigator({
 });
 
 // reducer initialization code
-const initialState=AppNavigator.router.getStateForAction(NavigationActions.reset({
-	index: 0,
-	actions: [
-	  NavigationActions.navigate({
-		  routeName: 'Main',
-	  }),
-	],
+const initialState = AppNavigator.router.getStateForAction(NavigationActions.reset({
+  index: 0,
+  actions: [
+    NavigationActions.navigate({
+      routeName: 'Main',
+    }),
+  ],
 }));
 
 // reducer code
@@ -94,10 +99,10 @@ export const navigationReducer = (state = initialState, action) => {
 
 // Note: createReactNavigationReduxMiddleware must be run before createReduxBoundAddListener
 export const navigationMiddleware = createReactNavigationReduxMiddleware(
-  "root",
+  'root',
   state => state.nav,
 );
-const addListener = createReduxBoundAddListener("root");
+const addListener = createReduxBoundAddListener('root');
 
 class AppWithNavigationState extends Component {
   componentWillReceiveProps(nextProps) {
@@ -144,7 +149,7 @@ class AppWithNavigationState extends Component {
         dispatch: this.props.dispatch,
         state: this.props.nav,
         addListener,
-      })} />
+      })}/>
     );
   }
 }
@@ -193,7 +198,8 @@ const userQuery = graphql(USER_QUERY, {
           const previousGroups = previousResult.user.groups;
           const newMessage = subscriptionData.data.messageAdded;
 
-          const groupIndex = map(previousGroups, 'id').indexOf(newMessage.to.id);
+          const groupIndex = map(previousGroups, 'id')
+            .indexOf(newMessage.to.id);
 
           return update(previousResult, {
             user: {
@@ -204,7 +210,8 @@ const userQuery = graphql(USER_QUERY, {
                       $set: [{
                         __typename: 'MessageEdge',
                         node: newMessage,
-                        cursor: Buffer.from(newMessage.id.toString()).toString('base64'),
+                        cursor: Buffer.from(newMessage.id.toString())
+                          .toString('base64'),
                       }],
                     },
                   },

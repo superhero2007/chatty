@@ -28,6 +28,8 @@
 		"react-apollo": "^2.0.4",
 		"react-native": "0.56.0",
 		"react-native-alpha-listview": "^0.2.1",
+		"react-native-elements": "^1.1.0",
+		"react-native-paper": "^2.13.0",
 		"react-native-vector-icons": "^4.6.0",
 		"react-navigation": "^1.0.3",
 		"react-navigation-redux-helpers": "^1.1.2",
