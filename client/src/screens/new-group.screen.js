@@ -4,14 +4,12 @@ import PropTypes from 'prop-types';
 import {
   ActivityIndicator,
   Button,
-  Image,
   StyleSheet,
   Text,
   View,
   ListView,
   ScrollView,
 } from 'react-native';
-import { RadioButton } from 'react-native-paper';
 import { graphql, compose } from 'react-apollo';
 import update from 'immutability-helper';
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -252,25 +250,14 @@ class NewGroup extends Component {
     return (
       <View style={styles.container}>
         <ScrollView>
-          <View style={{}}>
-            <Text style={{ borderRadius: 5, backgroundColor: '#EEEEEE', margin: 15, padding: 8, fontWeigt: 'bold' }}>Coltura</Text>
-            <RadioButton value="vite">Vite</RadioButton>
-            <RadioButton value="frutta">Frutta</RadioButton>
-            <RadioButton value="ortaggi">Ortaggi</RadioButton>
-            <RadioButton value="cereali">Cereali</RadioButton>
-            <RadioButton value="olivo">Olivo</RadioButton>
-            <RadioButton value="leguminose">Leguminose</RadioButton>
-            <RadioButton value="industriali">Industriali</RadioButton>
-            <RadioButton value="altro">Altro</RadioButton>
+          <View style={{padding: 15}}>
+            <Text style={{ borderRadius: 5, backgroundColor: '#EEEEEE', padding: 8, fontWeigt: 'bold' }}>Coltura</Text>
 
-            <Text style={{ borderRadius: 5, backgroundColor: '#EEEEEE', margin: 15, padding: 8, fontWeigt: 'bold' }}>Tipo</Text>
-            <RadioButton value="produzione">Produzione</RadioButton>
-            <RadioButton value="trasformazione">Trasformazione</RadioButton>
-            <RadioButton value="certificazione">Certificazione</RadioButton>
-            <RadioButton value="altro">Altro</RadioButton>
+            <Text style={{ borderRadius: 5, backgroundColor: '#EEEEEE', padding: 8, fontWeigt: 'bold' }}>Tipo</Text>
 
-            <Text style={{ borderRadius: 5, backgroundColor: '#EEEEEE', margin: 15, padding: 8, fontWeigt: 'bold' }}>Genere</Text>
-            <Text style={{ borderRadius: 5, backgroundColor: '#EEEEEE', margin: 15, padding: 8, fontWeigt: 'bold' }}>Motivo</Text>
+            <Text style={{ borderRadius: 5, backgroundColor: '#EEEEEE', padding: 8, fontWeigt: 'bold' }}>Genere</Text>
+
+            <Text style={{ borderRadius: 5, backgroundColor: '#EEEEEE', padding: 8, fontWeigt: 'bold' }}>Motivo</Text>
           </View>
         </ScrollView>
         <ListView
